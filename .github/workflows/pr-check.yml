@@ -52,6 +52,7 @@ jobs:
       contents: read
       pull-requests: write
       issues: write
+    needs: validate
     name: Check Changelog Entry
     runs-on: ubuntu-latest
     if: |
