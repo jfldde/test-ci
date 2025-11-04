@@ -120,16 +120,16 @@ jobs:
 
           if echo "$RESPONSE" | jq -e '.error' > /dev/null; then
             # Fallback to PR title if API fails
-            echo "❌ API Error - using PR title as fallback"
+            echo "API Error - using PR title as fallback"
             echo "$RESPONSE" | jq '.error'
             SUGGESTION="$PR_TITLE"
           else
             SUGGESTION=$(echo "$RESPONSE" | jq -r '.candidates[0].content.parts[0].text // ""' | tr -d '\n' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
             if [ -z "$SUGGESTION" ]; then
-              echo "⚠️ Empty suggestion received, using PR title"
+              echo "Empty suggestion received, using PR title"
               SUGGESTION="$PR_TITLE"
             else
-              echo "✅ Generated suggestion: $SUGGESTION"
+              echo "Generated suggestion: $SUGGESTION"
             fi
           fi
 
@@ -162,7 +162,7 @@ jobs:
 
             No changes detected in \`CHANGELOG.md\`.
 
-            **AI-suggested entry:**
+            **Recommendation:**
             \`\`\`
             ${process.env.CHANGELOG_ENTRY}
             \`\`\`
