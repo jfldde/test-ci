@@ -241,10 +241,21 @@ jobs:
             -H 'Content-Type: application/json' \
             -d "$PAYLOAD")
 
-          SUMMARY=$(echo "$RESPONSE" | jq -r '.candidates[0].content.parts[0].text // "Failed to generate summary"')
-          echo "summary<<EOF" >> $GITHUB_OUTPUT
-          echo "$SUMMARY" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
+          # Debug: Show the response
+          echo "API Response:"
+          echo "$RESPONSE" | jq '.'
+
+          # Check for errors
+          if echo "$RESPONSE" | jq -e '.error' > /dev/null; then
+            echo "Error from API:"
+            echo "$RESPONSE" | jq '.error'
+            echo "summary=API Error: $(echo "$RESPONSE" | jq -r '.error.message')" >> $GITHUB_OUTPUT
+          else
+            SUMMARY=$(echo "$RESPONSE" | jq -r '.candidates[0].content.parts[0].text // "Failed to parse response"')
+            echo "summary<<EOF" >> $GITHUB_OUTPUT
+            echo "$SUMMARY" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+          fi
 
       - name: Comment on PR
         uses: actions/github-script@v7
