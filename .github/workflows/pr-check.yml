@@ -237,13 +237,9 @@ jobs:
             }')
 
           RESPONSE=$(curl -s -X POST \
-            "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=$GEMINI_KEY" \
+            "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=$GEMINI_KEY" \
             -H 'Content-Type: application/json' \
             -d "$PAYLOAD")
-
-          # Debug: Show the response
-          echo "API Response:"
-          echo "$RESPONSE" | jq '.'
 
           # Check for errors
           if echo "$RESPONSE" | jq -e '.error' > /dev/null; then
