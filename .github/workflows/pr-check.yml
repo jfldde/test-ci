@@ -195,7 +195,6 @@ jobs:
 
   generate-summary:
     name: Generate summary with Gemini
-    id: summary
     env:
       DIFF_CONTENT: ${{ steps.diff.outputs.diff }}
       GEMINI_KEY: ${{ secrets.GEMINI_API_KEY }}
