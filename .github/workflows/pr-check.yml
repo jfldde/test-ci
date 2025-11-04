@@ -193,7 +193,7 @@ jobs:
               }
             }
 
-  steps:
+  generate-summary:
     name: Generate summary with Gemini
     id: summary
     env:
