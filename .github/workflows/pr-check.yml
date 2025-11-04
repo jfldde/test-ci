@@ -84,6 +84,14 @@ jobs:
           git fetch origin ${{ github.base_ref }}
           DIFF=$(git diff origin/${{ github.base_ref }}...HEAD)
 
+          echo "Diff size: ${#DIFF} characters"
+
+          # Limit diff size to avoid token limits (roughly 100k chars = ~25k tokens)
+          if [ ${#DIFF} -gt 100000 ]; then
+            echo "Diff too large, truncating to 100k characters"
+            DIFF="${DIFF:0:100000}"
+          fi
+
           # Create prompt for changelog entry using jq to handle escaping
           PAYLOAD=$(jq -n \
             --arg diff "$DIFF" \
@@ -101,20 +109,27 @@ jobs:
               }
             }')
 
+          echo "Calling Gemini API..."
           RESPONSE=$(curl -s -X POST \
             "https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key=$GEMINI_KEY" \
             -H 'Content-Type: application/json' \
             -d "$PAYLOAD")
 
+          echo "API Response:"
+          echo "$RESPONSE" | jq '.'
+
           if echo "$RESPONSE" | jq -e '.error' > /dev/null; then
             # Fallback to PR title if API fails
-            echo "API Error - using PR title as fallback"
+            echo "❌ API Error - using PR title as fallback"
             echo "$RESPONSE" | jq '.error'
             SUGGESTION="$PR_TITLE"
           else
             SUGGESTION=$(echo "$RESPONSE" | jq -r '.candidates[0].content.parts[0].text // ""' | tr -d '\n' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
             if [ -z "$SUGGESTION" ]; then
+              echo "⚠️ Empty suggestion received, using PR title"
               SUGGESTION="$PR_TITLE"
+            else
+              echo "✅ Generated suggestion: $SUGGESTION"
             fi
           fi
 
