@@ -92,15 +92,17 @@ jobs:
             DIFF="${DIFF:0:100000}"
           fi
 
-          # Create prompt for changelog entry using jq to handle escaping
+          PROMPT=$(cat .github/prompts/changelog.txt)
+          PROMPT="${PROMPT//\{\{PR_TITLE\}\}/$PR_TITLE}"
+          PROMPT="${PROMPT//\{\{PR_BODY\}\}/$PR_BODY}"
+          PROMPT="${PROMPT//\{\{DIFF\}\}/$DIFF}"
+
           PAYLOAD=$(jq -n \
-            --arg diff "$DIFF" \
-            --arg title "$PR_TITLE" \
-            --arg body "$PR_BODY" \
+            --arg prompt "$PROMPT" \
             '{
               contents: [{
                 parts: [{
-                  text: ("Generate a concise 1-2 line changelog entry for this PR. Follow conventional commit format (feat/fix/docs/chore/refactor/etc). Be specific about what changed. Do not include markdown formatting or bullet points, just plain text.\n\nPR Title: " + $title + "\n\nPR Description: " + $body + "\n\nDiff:\n" + $diff)
+                  text: $prompt
                 }]
               }],
               generationConfig: {
