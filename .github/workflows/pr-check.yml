@@ -186,7 +186,7 @@ jobs:
             });
 
             // Only comment if we haven't already
-            if (!botComment && !dismissalComment) {
+            if (!botComment) {
               const commentBody = `## ⚠️ Changelog entry missing
 
             No changes detected in \`CHANGELOG.md\`.
